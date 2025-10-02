@@ -73,6 +73,26 @@
             grid-template-columns: 1fr 1fr;
             gap: 15px;
         }
+        
+        /* Gaya umum untuk tombol baru */
+        .button { 
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .button:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 3px 10px rgba(0,0,0,0.2);
+        }
+
+        .button:active {
+            transform: translateY(0);
+        }
 
         button {
             width: 100%;
@@ -294,11 +314,30 @@
             white-space: pre-wrap;
             word-wrap: break-word;
         }
-
-        .copy-btn {
-            padding: 6px 15px;
+        
+        /* Gaya untuk tombol aksi per tautan */
+        .action-link-group {
+            display: flex;
+            gap: 5px;
+            margin-top: 5px;
+        }
+        
+        .open-btn {
+            padding: 4px 10px;
             width: auto;
-            font-size: 12px;
+            font-size: 11px;
+            background: #007bff; /* Warna biru untuk tombol open */
+            white-space: nowrap;
+        }
+
+        .open-btn:hover {
+            background: #0056b3;
+        }
+        
+        .copy-btn {
+            padding: 4px 10px; /* Sesuaikan dengan open-btn */
+            width: auto;
+            font-size: 11px; /* Sesuaikan dengan open-btn */
             background: #28a745;
             white-space: nowrap;
         }
@@ -573,6 +612,12 @@
                         <div class="link-text">${linkData.url}</div>
                         <span class="link-status status-${linkData.status}">${getStatusText(linkData.status)}</span>
                     </div>
+                    
+                    <div class="action-link-group">
+                        <button class="button open-btn" onclick="window.open('${linkData.url}', '_blank')">🔗 Open (New Tab)</button>
+                        <button class="button copy-btn" onclick="copyLink('${linkData.url}')">📋 Copy Link</button>
+                    </div>
+
                     <div class="json-response ${linkData.response || linkData.error ? 'show' : ''}">
                         ${jsonContent}
                     </div>
@@ -636,7 +681,8 @@
                 if (shouldStop) break;
 
                 const linkData = allLinks[i];
-
+                linkData.status = 'fetching'; // Update status to fetching for visual feedback
+                
                 try {
                     const response = await fetch(linkData.url, {
                         method: 'GET',
@@ -671,6 +717,7 @@
                     if (errorMsg.includes('Failed to fetch') || errorMsg.includes('CORS')) {
                         errorMsg = 'CORS Error - Gunakan ekstensi CORS Unblock atau buka link manual';
                     }
+                    linkData.error = errorMsg; // Update error message to be more helpful
                     
                     errors++;
                 }
@@ -678,6 +725,12 @@
                 fetched++;
                 updateProgress(fetched, success, errors);
 
+                // Re-render only the current link to update its status/response immediately 
+                // Note: Full re-render can be slow, but for this simple structure it's acceptable.
+                // A more complex app would update a single DOM element. For now, let's keep the logic simple:
+                // Since this is a bulk operation, we'll re-render the whole list only at the end to keep performance simple,
+                // but we will update progress inside the loop.
+                
                 await new Promise(resolve => setTimeout(resolve, 300));
             }
 
@@ -714,6 +767,10 @@
                         '1. Install ekstensi: "Allow CORS: Access-Control-Allow-Origin"\n' +
                         '2. Atau akses link satu per satu'
                     );
+                } else if (errors === 0 && success > 0) {
+                    showToast('Fetch Selesai! Semua link berhasil diakses.');
+                } else if (errors > 0 && success > 0) {
+                    showToast('Fetch Selesai! Beberapa link mungkin mengalami masalah CORS.');
                 }
             }
         }
@@ -733,6 +790,7 @@
                 window.displayedLinks = allLinks;
                 displayLinks();
             }
+            showToast('Proses Fetch Dihentikan.');
         }
 
         function updateProgress(fetched, success, errors) {
@@ -753,9 +811,21 @@
             document.getElementById('progressFill').style.width = '0%';
         }
 
+        function copyLink(link) {
+            navigator.clipboard.writeText(link).then(() => {
+                showToast('Link berhasil disalin!');
+            }).catch(err => {
+                console.error('Gagal menyalin link: ', err);
+                showToast('Gagal menyalin link!', 'error'); 
+            });
+        }
+
         function showToast(message = 'Aksi berhasil!') {
             const toast = document.getElementById('toast');
             toast.textContent = message;
+            
+            // Re-use the existing CSS class but update text for different states if needed (not implemented here)
+            // For simplicity, just use the 'success-toast' style
             toast.classList.add('show');
             
             setTimeout(() => {
