@@ -437,30 +437,41 @@
         let shouldStop = false;
         window.displayedLinks = [];
 
-        // Fungsi untuk membandingkan email lengkap dengan email yang disensor
+        /**
+         * Memeriksa apakah email lengkap pengguna cocok dengan format email yang disensor.
+         * LOGIKA BARU: Hanya mencocokkan 3 karakter pertama (atau kurang) dari nama pengguna.
+         * @param {string} userEmail Email lengkap dari input.
+         * @param {string} censoredEmail Email dari respon API yang disensor (mengandung *****).
+         * @returns {boolean} True jika 3 karakter pertama cocok, false jika tidak.
+         */
         function isEmailMatch(userEmail, censoredEmail) {
             if (!userEmail || !censoredEmail) return false;
             
             const full = userEmail.trim().toLowerCase();
             const censored = censoredEmail.trim().toLowerCase();
-            
-            const parts = censored.split('*****');
-            
-            if (parts.length !== 2) {
-                if (!censored.includes('*')) return full === censored;
-                return false; 
+            const delimiter = '*****';
+
+            if (!censored.includes(delimiter)) {
+                // Jika tidak ada sensor, periksa kecocokan sempurna
+                return full === censored;
             }
-
-            const prefix = parts[0]; 
-            const suffix = parts[1];
-
-            if (!full.startsWith(prefix)) return false;
-            if (!full.endsWith(suffix)) return false;
-
-            const expectedHiddenPart = full.substring(prefix.length, full.length - suffix.length);
-            if (expectedHiddenPart.length === 0 && prefix.length + suffix.length !== full.length) return false;
             
-            return true;
+            // Bagi email yang disensor menjadi prefix (yang terungkap) dan sisanya
+            const parts = censored.split(delimiter);
+            
+            // Bagian yang terungkap harus ada
+            if (parts.length < 1) return false;
+            
+            const censoredPrefix = parts[0]; 
+            
+            // Ambil maksimal 3 karakter pertama dari bagian yang diungkap oleh API.
+            const requiredPrefix = censoredPrefix.substring(0, 3); 
+            
+            // Ambil karakter yang sama panjangnya dari email lengkap pengguna
+            const userPrefix = full.substring(0, requiredPrefix.length);
+
+            // Cek apakah awalan cocok. Suffix/domain diabaikan.
+            return (userPrefix === requiredPrefix);
         }
 
         function validateInputs() {
@@ -688,7 +699,7 @@
                     alert(
                         '❌ Tidak ada NIP yang ditemukan cocok dengan email Anda.\n\n' +
                         'SOLUSI:\n' +
-                        '1. Pastikan email yang dimasukkan sudah benar dan lengkap (tidak disensor).\n' +
+                        '1. Pastikan email yang dimasukkan sudah benar dan lengkap.\n' +
                         '2. Coba rentang 3 digit yang lebih luas.'
                     );
                 }
