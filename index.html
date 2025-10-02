@@ -145,6 +145,12 @@
             align-items: center;
             margin-bottom: 10px;
         }
+        
+        /* Adjusted for single item in stats row */
+        .stats-row:first-child {
+            justify-content: flex-start;
+        }
+
 
         .stats-row:last-child {
             margin-bottom: 0;
@@ -205,6 +211,12 @@
         .link-item.error {
             border-left-color: #dc3545;
             background: #fff5f5;
+        }
+        
+        .link-item.matched {
+            border-left-color: #667eea;
+            background: #f0f2ff;
+            box-shadow: 0 0 10px rgba(102, 126, 234, 0.1);
         }
 
         .nip-display {
@@ -359,14 +371,21 @@
             <span class="error" id="baseError"></span>
         </div>
 
-        <div class="input-group">
+        <div class="input-group" style="display:none;">
             <label for="token">Token:</label>
             <input type="text" id="token" value="$2b$10$.9ehUjHkAGEMeMLdUh3.teDmqNaU9o3QVt7xdFv9elaEGoek03cRu">
         </div>
 
-        <div class="input-group">
+        <div class="input-group" style="display:none;">
             <label for="captcha">Captcha:</label>
             <input type="text" id="captcha" value="sL2c">
+        </div>
+
+        <div class="input-group">
+            <label for="targetEmail">Email Anda untuk Verifikasi (Full Email):</label>
+            <input type="email" id="targetEmail" placeholder="Contoh: namaanda@email.com">
+            <span class="error" id="emailError"></span>
+            <p class="subtitle" style="margin-top: 5px;">*Wajib diisi jika ingin menyaring NIP berdasarkan email yang cocok.</p>
         </div>
 
         <div class="input-group">
@@ -387,15 +406,13 @@
         <div class="output" id="output">
             <div class="action-buttons">
                 <button class="fetch-btn" onclick="fetchAllLinks()" id="fetchBtn">🌐 Fetch Semua Link</button>
-                <button class="fetch-btn" onclick="openAllLinks()" id="openBtn">🔗 Open All Links</button>
                 <button class="stop-btn" onclick="stopFetching()" id="stopBtn" style="display:none;">⏹️ Stop</button>
             </div>
             <div class="stats">
                 <div class="stats-row">
                     <div class="stats-info">
-                        <strong>Total Link:</strong> <span id="totalLinks">0</span>
+                        <strong>Total Link Ditampilkan:</strong> <span id="totalLinks">0</span>
                     </div>
-                    <button class="copy-all-btn" onclick="copyAllLinks()">📋 Copy Semua</button>
                 </div>
                 <div class="stats-row" id="fetchStats" style="display:none;">
                     <div class="stats-info">
@@ -418,6 +435,33 @@
         let allLinks = [];
         let isFetching = false;
         let shouldStop = false;
+        window.displayedLinks = [];
+
+        // Fungsi untuk membandingkan email lengkap dengan email yang disensor
+        function isEmailMatch(userEmail, censoredEmail) {
+            if (!userEmail || !censoredEmail) return false;
+            
+            const full = userEmail.trim().toLowerCase();
+            const censored = censoredEmail.trim().toLowerCase();
+            
+            const parts = censored.split('*****');
+            
+            if (parts.length !== 2) {
+                if (!censored.includes('*')) return full === censored;
+                return false; 
+            }
+
+            const prefix = parts[0]; 
+            const suffix = parts[1];
+
+            if (!full.startsWith(prefix)) return false;
+            if (!full.endsWith(suffix)) return false;
+
+            const expectedHiddenPart = full.substring(prefix.length, full.length - suffix.length);
+            if (expectedHiddenPart.length === 0 && prefix.length + suffix.length !== full.length) return false;
+            
+            return true;
+        }
 
         function validateInputs() {
             let isValid = true;
@@ -430,6 +474,17 @@
                 isValid = false;
             } else {
                 baseError.textContent = '';
+            }
+            
+            const targetEmail = document.getElementById('targetEmail').value.trim();
+            const emailError = document.getElementById('emailError');
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/; 
+
+            if (targetEmail && !emailRegex.test(targetEmail)) {
+                emailError.textContent = 'Format email tidak valid!';
+                isValid = false;
+            } else {
+                emailError.textContent = '';
             }
 
             const rangeStart = parseInt(document.getElementById('rangeStart').value);
@@ -455,7 +510,8 @@
             }
 
             const baseDigits = document.getElementById('baseDigits').value;
-            const token = document.getElementById('token').value;
+            // Ambil nilai dari input yang tersembunyi
+            const token = document.getElementById('token').value; 
             const captcha = document.getElementById('captcha').value;
             const rangeStart = parseInt(document.getElementById('rangeStart').value);
             const rangeEnd = parseInt(document.getElementById('rangeEnd').value);
@@ -471,32 +527,44 @@
                     username: username,
                     status: 'pending',
                     response: null,
-                    error: null
+                    error: null,
+                    isMatched: false
                 });
             }
-
+            
+            window.displayedLinks = [...allLinks]; 
             displayLinks();
         }
 
-        function displayLinks() {
+        function displayLinks(linksToDisplay = window.displayedLinks) {
             const output = document.getElementById('output');
             const linksContainer = document.getElementById('linksContainer');
             const totalLinks = document.getElementById('totalLinks');
 
-            totalLinks.textContent = allLinks.length;
+            totalLinks.textContent = linksToDisplay.length;
             linksContainer.innerHTML = '';
 
-            allLinks.forEach((linkData, index) => {
+            linksToDisplay.forEach((linkData) => {
                 const linkItem = document.createElement('div');
-                linkItem.className = 'link-item';
-                linkItem.id = `link-${index}`;
+                const matchedClass = linkData.isMatched ? 'matched' : '';
+                linkItem.className = `link-item ${linkData.status} ${matchedClass}`;
+                
+                let jsonContent = '';
+                if (linkData.response) {
+                    jsonContent = `<pre>${JSON.stringify(linkData.response, null, 2)}</pre>`;
+                } else if (linkData.error) {
+                    jsonContent = `<pre style="color: #dc3545;">Error: ${linkData.error}</pre>`;
+                }
+
                 linkItem.innerHTML = `
                     <div class="nip-display">NIP: ${linkData.username}</div>
                     <div class="link-header">
                         <div class="link-text">${linkData.url}</div>
                         <span class="link-status status-${linkData.status}">${getStatusText(linkData.status)}</span>
                     </div>
-                    <div class="json-response" id="json-${index}"></div>
+                    <div class="json-response ${linkData.response || linkData.error ? 'show' : ''}">
+                        ${jsonContent}
+                    </div>
                 `;
                 linksContainer.appendChild(linkItem);
             });
@@ -521,15 +589,17 @@
                 alert('Generate links terlebih dahulu!');
                 return;
             }
+            
+            const targetEmail = document.getElementById('targetEmail').value.trim().toLowerCase();
+            const shouldFilter = !!targetEmail;
+            let matchedNips = 0;
 
-            // Tampilkan peringatan CORS
             const confirmFetch = confirm(
                 '⚠️ PERHATIAN:\n\n' +
                 'Fitur auto-fetch mungkin diblokir oleh CORS policy dari server.\n\n' +
                 'SOLUSI ALTERNATIF:\n' +
                 '1. Instal ekstensi browser "CORS Unblock" atau "Allow CORS"\n' +
-                '2. Gunakan mode "Open Link" untuk membuka link satu per satu di tab baru\n' +
-                '3. Copy semua link dan akses manual\n\n' +
+                '2. Akses link satu per satu secara manual\n\n' +
                 'Tetap lanjutkan fetch?'
             );
 
@@ -547,15 +617,16 @@
             let fetched = 0;
             let success = 0;
             let errors = 0;
+            
+            window.displayedLinks = [];
+            displayLinks([]);
 
             for (let i = 0; i < allLinks.length; i++) {
                 if (shouldStop) break;
 
                 const linkData = allLinks[i];
-                updateLinkStatus(i, 'fetching');
 
                 try {
-                    // Coba dengan mode no-cors terlebih dahulu
                     const response = await fetch(linkData.url, {
                         method: 'GET',
                         mode: 'cors',
@@ -569,7 +640,14 @@
                         const data = await response.json();
                         linkData.response = data;
                         linkData.status = 'success';
-                        updateLinkStatus(i, 'success', data);
+                        
+                        if (data.status === true && data.data && data.data.email) {
+                            if (shouldFilter && isEmailMatch(targetEmail, data.data.email)) {
+                                linkData.isMatched = true;
+                                matchedNips++;
+                            }
+                        }
+                        
                         success++;
                     } else {
                         throw new Error(`HTTP ${response.status}: ${response.statusText}`);
@@ -578,20 +656,17 @@
                     linkData.error = error.message;
                     linkData.status = 'error';
                     
-                    // Tampilkan info CORS jika error adalah CORS
                     let errorMsg = error.message;
                     if (errorMsg.includes('Failed to fetch') || errorMsg.includes('CORS')) {
                         errorMsg = 'CORS Error - Gunakan ekstensi CORS Unblock atau buka link manual';
                     }
                     
-                    updateLinkStatus(i, 'error', null, errorMsg);
                     errors++;
                 }
 
                 fetched++;
                 updateProgress(fetched, success, errors);
 
-                // Delay 300ms untuk menghindari rate limiting
                 await new Promise(resolve => setTimeout(resolve, 300));
             }
 
@@ -599,15 +674,36 @@
             document.getElementById('fetchBtn').style.display = 'block';
             document.getElementById('stopBtn').style.display = 'none';
 
-            // Tampilkan ringkasan
-            if (errors > 0 && success === 0) {
-                alert(
-                    '❌ Semua request gagal karena CORS!\n\n' +
-                    'SOLUSI:\n' +
-                    '1. Install ekstensi: "Allow CORS: Access-Control-Allow-Origin"\n' +
-                    '2. Atau gunakan tombol "Open All Links" untuk buka manual\n' +
-                    '3. Atau akses link satu per satu'
-                );
+            // FILTER DAN TAMPILKAN HASIL AKHIR
+            if (shouldFilter) {
+                const filteredLinks = allLinks.filter(l => l.isMatched);
+                
+                window.displayedLinks = filteredLinks; 
+
+                if (filteredLinks.length > 0) {
+                    displayLinks(filteredLinks); 
+                    showToast(`Selesai! Ditemukan ${matchedNips} NIP yang cocok dengan email Anda.`);
+                } else {
+                    displayLinks([]); 
+                    alert(
+                        '❌ Tidak ada NIP yang ditemukan cocok dengan email Anda.\n\n' +
+                        'SOLUSI:\n' +
+                        '1. Pastikan email yang dimasukkan sudah benar dan lengkap (tidak disensor).\n' +
+                        '2. Coba rentang 3 digit yang lebih luas.'
+                    );
+                }
+            } else {
+                window.displayedLinks = allLinks;
+                displayLinks();
+
+                if (errors > 0 && success === 0) {
+                    alert(
+                        '❌ Semua request gagal karena CORS!\n\n' +
+                        'SOLUSI:\n' +
+                        '1. Install ekstensi: "Allow CORS: Access-Control-Allow-Origin"\n' +
+                        '2. Atau akses link satu per satu'
+                    );
+                }
             }
         }
 
@@ -616,24 +712,15 @@
             isFetching = false;
             document.getElementById('fetchBtn').style.display = 'block';
             document.getElementById('stopBtn').style.display = 'none';
-        }
-
-        function updateLinkStatus(index, status, response = null, error = null) {
-            const linkItem = document.getElementById(`link-${index}`);
-            const jsonDiv = document.getElementById(`json-${index}`);
             
-            linkItem.className = `link-item ${status}`;
-            
-            const statusSpan = linkItem.querySelector('.link-status');
-            statusSpan.className = `link-status status-${status}`;
-            statusSpan.textContent = getStatusText(status);
-
-            if (response) {
-                jsonDiv.innerHTML = `<pre>${JSON.stringify(response, null, 2)}</pre>`;
-                jsonDiv.classList.add('show');
-            } else if (error) {
-                jsonDiv.innerHTML = `<pre style="color: #dc3545;">Error: ${error}</pre>`;
-                jsonDiv.classList.add('show');
+            const targetEmail = document.getElementById('targetEmail').value.trim().toLowerCase();
+            if (targetEmail) {
+                const filteredLinks = allLinks.filter(l => l.isMatched);
+                window.displayedLinks = filteredLinks;
+                displayLinks(filteredLinks);
+            } else {
+                window.displayedLinks = allLinks;
+                displayLinks();
             }
         }
 
@@ -655,21 +742,7 @@
             document.getElementById('progressFill').style.width = '0%';
         }
 
-        function copyLink(link) {
-            navigator.clipboard.writeText(link).then(() => {
-                showToast();
-            });
-        }
-
-        function copyAllLinks() {
-            const links = allLinks.map(l => l.url).join('\n');
-            
-            navigator.clipboard.writeText(links).then(() => {
-                showToast('Semua link berhasil disalin!');
-            });
-        }
-
-        function showToast(message = 'Link berhasil disalin!') {
+        function showToast(message = 'Aksi berhasil!') {
             const toast = document.getElementById('toast');
             toast.textContent = message;
             toast.classList.add('show');
@@ -677,51 +750,6 @@
             setTimeout(() => {
                 toast.classList.remove('show');
             }, 2000);
-        }
-
-        function openAllLinks() {
-            if (allLinks.length === 0) {
-                alert('Generate links terlebih dahulu!');
-                return;
-            }
-
-            const confirmOpen = confirm(
-                `⚠️ Akan membuka ${allLinks.length} tab baru di browser!\n\n` +
-                'Browser mungkin memblokir popup.\n' +
-                'Pastikan izinkan popup untuk situs ini.\n\n' +
-                'Lanjutkan?'
-            );
-
-            if (!confirmOpen) return;
-
-            let opened = 0;
-            const maxBatch = 10; // Buka maksimal 10 tab per batch
-
-            function openBatch(startIndex) {
-                const endIndex = Math.min(startIndex + maxBatch, allLinks.length);
-                
-                for (let i = startIndex; i < endIndex; i++) {
-                    window.open(allLinks[i].url, '_blank');
-                    opened++;
-                }
-
-                if (endIndex < allLinks.length) {
-                    // Delay 2 detik sebelum batch berikutnya
-                    setTimeout(() => {
-                        const continueOpen = confirm(
-                            `Sudah membuka ${opened} dari ${allLinks.length} link.\n\n` +
-                            'Lanjutkan membuka sisanya?'
-                        );
-                        if (continueOpen) {
-                            openBatch(endIndex);
-                        }
-                    }, 2000);
-                } else {
-                    showToast(`Berhasil membuka ${opened} link!`);
-                }
-            }
-
-            openBatch(0);
         }
     </script>
 </body>
