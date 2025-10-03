@@ -403,19 +403,20 @@
     <div class="container">
         <h1>🔗 NI PPPK FINDER</h1>
         <p class="subtitle">Created by Muif Aha - Vercel Deployment</p>
+        <p class="subtitle">Web untuk mencari Nomor NIP PPPK sebelum penerimaan SK, user bisa mencari nomor NIP secara otomatis, NIP yang sudah didapatkan bisa digunakan untuk mereset password dan login ke ASNDIGITAL/MyASN untuk melihat lokasi penempatan</p>
 
         <div class="server-status" id="serverStatus">
             🔄 Memeriksa koneksi server...
         </div>
 
         <div class="input-group">
-            <label for="baseDigits">15 Digit Angka Dasar:</label>
+            <label for="baseDigits">15 Digit Angka Dasar :</label>
             <input type="text" id="baseDigits" placeholder="Contoh: 199312282025212" maxlength="15">
             <span class="error" id="baseError"></span>
         </div>
 
         <div class="input-group">
-            <label for="targetEmail">Email Anda untuk Verifikasi (Full Email):</label>
+            <label for="targetEmail">Masukan Email yang sama dengan email di SSCN (Pendaftaran PPPK):</label>
             <input type="email" id="targetEmail" placeholder="Contoh: namaanda@email.com">
             <span class="error" id="emailError"></span>
             <p class="subtitle" style="margin-top: 5px;">*Wajib diisi untuk menyaring NIP berdasarkan email yang cocok.</p>
