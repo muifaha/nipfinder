@@ -410,7 +410,7 @@
 <body>
     <div class="container">
         <h1>🔗 NI PPPK FINDER</h1>
-        <p class="subtitle">Created by Muif Aha - Node.js Proxy Version</p>
+        <p class="subtitle">Created by Muif Aha - Vercel Deployment</p>
 
         <div class="server-status" id="serverStatus">
             🔄 Memeriksa koneksi server...
@@ -483,13 +483,13 @@
     <div class="success-toast" id="toast">Link berhasil disalin!</div>
 
     <script>
+        // Automatically detect API base URL (localhost or Vercel)
         const API_BASE = window.location.origin;
         let allLinks = [];
         let isFetching = false;
         let shouldStop = false;
         window.displayedLinks = [];
 
-        // Check server status on page load
         window.addEventListener('load', checkServerStatus);
 
         async function checkServerStatus() {
@@ -500,7 +500,7 @@
                 statusEl.innerHTML = '✅ Server Online - Siap digunakan!';
             } catch (error) {
                 statusEl.className = 'server-status offline';
-                statusEl.innerHTML = '❌ Server Offline - Pastikan Node.js server berjalan!';
+                statusEl.innerHTML = '❌ Server Offline - Ada masalah koneksi!';
             }
         }
 
@@ -686,7 +686,6 @@
                 linkData.status = 'fetching';
                 
                 try {
-                    // Use proxy endpoint instead of direct fetch
                     const proxyUrl = `${API_BASE}/api/proxy?username=${linkData.username}&token=${encodeURIComponent(linkData.token)}&captcha=${linkData.captcha}`;
                     
                     const response = await fetch(proxyUrl);
@@ -744,7 +743,7 @@
                 displayLinks();
 
                 if (errors > 0 && success === 0) {
-                    alert('❌ Semua request gagal! Pastikan server Node.js berjalan.');
+                    alert('❌ Semua request gagal! Cek koneksi internet Anda.');
                 } else if (errors === 0 && success > 0) {
                     showToast('Fetch Selesai! Semua link berhasil diakses.');
                 } else if (errors > 0 && success > 0) {
