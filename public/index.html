@@ -90,25 +90,6 @@
             grid-template-columns: 1fr 1fr;
             gap: 15px;
         }
-        
-        .button { 
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            border: none;
-            border-radius: 8px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: transform 0.2s, box-shadow 0.2s;
-        }
-
-        .button:hover {
-            transform: translateY(-1px);
-            box-shadow: 0 3px 10px rgba(0,0,0,0.2);
-        }
-
-        .button:active {
-            transform: translateY(0);
-        }
 
         button {
             width: 100%;
@@ -123,12 +104,12 @@
             transition: transform 0.2s, box-shadow 0.2s;
         }
 
-        button:hover {
+        button:hover:not(:disabled) {
             transform: translateY(-2px);
             box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
         }
 
-        button:active {
+        button:active:not(:disabled) {
             transform: translateY(0);
         }
 
@@ -137,220 +118,249 @@
             cursor: not-allowed;
         }
 
-        .output {
-            margin-top: 30px;
-            display: none;
-        }
-
-        .output.show {
-            display: block;
-        }
-
-        .action-buttons {
-            display: flex;
-            gap: 10px;
-            margin-bottom: 20px;
-        }
-
-        .fetch-btn {
-            background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
-        }
-
-        .fetch-btn:hover {
-            box-shadow: 0 5px 15px rgba(40, 167, 69, 0.4);
-        }
-
         .stop-btn {
             background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);
+            margin-top: 10px;
         }
 
         .stop-btn:hover {
             box-shadow: 0 5px 15px rgba(220, 53, 69, 0.4);
         }
 
-        .stats {
-            background: #f8f9fa;
-            padding: 15px;
-            border-radius: 8px;
-            margin-bottom: 15px;
-        }
-
-        .stats-row {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 10px;
-        }
-        
-        .stats-row:first-child {
-            justify-content: flex-start;
-        }
-
-        .stats-row:last-child {
-            margin-bottom: 0;
-        }
-
-        .stats-info {
-            color: #555;
-        }
-
-        .progress-bar {
-            width: 100%;
-            height: 8px;
-            background: #e9ecef;
-            border-radius: 10px;
-            overflow: hidden;
-            margin-top: 10px;
-        }
-
-        .progress-fill {
-            height: 100%;
-            background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
-            width: 0%;
-            transition: width 0.3s;
-        }
-
-        .links-container {
-            background: #f8f9fa;
-            border-radius: 8px;
-            padding: 20px;
-            max-height: 400px;
-            overflow-y: auto;
-        }
-
-        .link-item {
-            background: white;
-            padding: 12px;
-            margin-bottom: 10px;
-            border-radius: 6px;
-            border-left: 4px solid #ddd;
-        }
-
-        .link-item.fetching {
-            border-left-color: #ffc107;
-            background: #fff9e6;
-        }
-
-        .link-item.success {
-            border-left-color: #28a745;
-            background: #f0f9f4;
-        }
-
-        .link-item.error {
-            border-left-color: #dc3545;
-            background: #fff5f5;
-        }
-        
-        .link-item.matched {
-            border-left-color: #667eea;
-            background: #f0f2ff;
-            box-shadow: 0 0 10px rgba(102, 126, 234, 0.1);
-        }
-
-        .nip-display {
-            font-weight: 700;
-            color: #667eea;
-            margin-bottom: 8px;
-            font-size: 14px;
-            padding: 8px;
-            background: #f0f2ff;
-            border-radius: 4px;
-            display: inline-block;
-        }
-
-        .link-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            gap: 10px;
-            margin-bottom: 8px;
-        }
-
-        .link-text {
-            flex: 1;
-            word-break: break-all;
-            font-size: 13px;
-            color: #333;
-        }
-
-        .link-status {
-            font-size: 11px;
-            padding: 3px 8px;
-            border-radius: 4px;
-            font-weight: 600;
-            white-space: nowrap;
-        }
-
-        .status-pending {
-            background: #e9ecef;
-            color: #6c757d;
-        }
-
-        .status-fetching {
-            background: #fff3cd;
-            color: #856404;
-        }
-
-        .status-success {
-            background: #d4edda;
-            color: #155724;
-        }
-
-        .status-error {
-            background: #f8d7da;
-            color: #721c24;
-        }
-
-        .json-response {
-            margin-top: 10px;
-            padding: 10px;
-            background: #f8f9fa;
-            border-radius: 4px;
-            font-family: 'Courier New', monospace;
-            font-size: 12px;
-            max-height: 200px;
-            overflow-y: auto;
+        /* Loading Container */
+        .loading-container {
             display: none;
+            margin-top: 30px;
+            padding: 25px;
+            background: #f8f9fa;
+            border-radius: 12px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
         }
 
-        .json-response.show {
+        .loading-container.show {
             display: block;
         }
 
-        .json-response pre {
-            margin: 0;
-            white-space: pre-wrap;
-            word-wrap: break-word;
+        .loading-header {
+            text-align: center;
+            margin-bottom: 20px;
         }
-        
-        .action-link-group {
+
+        .loading-title {
+            font-size: 20px;
+            font-weight: 700;
+            color: #667eea;
+            margin-bottom: 5px;
+        }
+
+        .loading-subtitle {
+            font-size: 14px;
+            color: #666;
+        }
+
+        /* Progress Bar */
+        .progress-section {
+            margin-bottom: 20px;
+        }
+
+        .progress-info {
             display: flex;
-            gap: 5px;
-            margin-top: 5px;
-        }
-        
-        .open-btn {
-            padding: 4px 10px;
-            width: auto;
-            font-size: 11px;
-            background: #007bff;
-            white-space: nowrap;
+            justify-content: space-between;
+            margin-bottom: 10px;
+            font-size: 14px;
+            color: #555;
         }
 
-        .open-btn:hover {
-            background: #0056b3;
-        }
-        
-        .copy-btn {
-            padding: 4px 10px;
-            width: auto;
-            font-size: 11px;
-            background: #28a745;
-            white-space: nowrap;
+        .progress-bar-container {
+            width: 100%;
+            height: 30px;
+            background: #e9ecef;
+            border-radius: 15px;
+            overflow: hidden;
+            position: relative;
+            box-shadow: inset 0 2px 4px rgba(0,0,0,0.1);
         }
 
-        .copy-btn:hover {
-            background: #218838;
+        .progress-bar-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+            width: 0%;
+            transition: width 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 700;
+            font-size: 12px;
+        }
+
+        /* Stats Grid */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+
+        .stat-label {
+            font-size: 12px;
+            color: #666;
+            margin-bottom: 5px;
+            text-transform: uppercase;
+        }
+
+        .stat-value {
+            font-size: 24px;
+            font-weight: 700;
+            color: #333;
+        }
+
+        .stat-value.success {
+            color: #28a745;
+        }
+
+        .stat-value.error {
+            color: #dc3545;
+        }
+
+        .stat-value.matched {
+            color: #667eea;
+        }
+
+        /* Time Estimate */
+        .time-estimate {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .time-estimate-label {
+            font-size: 12px;
+            margin-bottom: 5px;
+            opacity: 0.9;
+        }
+
+        .time-estimate-value {
+            font-size: 28px;
+            font-weight: 700;
+        }
+
+        /* Spinner Animation */
+        .spinner {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255,255,255,0.3);
+            border-radius: 50%;
+            border-top-color: white;
+            animation: spin 1s linear infinite;
+            margin-right: 10px;
+            vertical-align: middle;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* Results Section */
+        .results-container {
+            display: none;
+            margin-top: 20px;
+        }
+
+        .results-container.show {
+            display: block;
+        }
+
+        .results-header {
+            background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 8px;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .results-title {
+            font-size: 24px;
+            font-weight: 700;
+            margin-bottom: 10px;
+        }
+
+        .results-subtitle {
+            font-size: 14px;
+            opacity: 0.9;
+        }
+
+        .result-card {
+            background: white;
+            border: 2px solid #667eea;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 15px;
+            box-shadow: 0 4px 10px rgba(102, 126, 234, 0.2);
+        }
+
+        .result-nip {
+            font-size: 20px;
+            font-weight: 700;
+            color: #667eea;
+            margin-bottom: 10px;
+        }
+
+        .result-email {
+            font-size: 16px;
+            color: #555;
+            margin-bottom: 15px;
+        }
+
+        .result-link {
+            font-size: 12px;
+            color: #999;
+            word-break: break-all;
+            margin-bottom: 15px;
+        }
+
+        .result-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        .result-btn {
+            flex: 1;
+            padding: 10px;
+            font-size: 14px;
+        }
+
+        .no-results {
+            background: #f8d7da;
+            border: 1px solid #f5c6cb;
+            color: #721c24;
+            padding: 20px;
+            border-radius: 8px;
+            text-align: center;
+        }
+
+        .no-results-title {
+            font-size: 18px;
+            font-weight: 700;
+            margin-bottom: 10px;
+        }
+
+        .no-results-text {
+            font-size: 14px;
+            line-height: 1.6;
         }
 
         .error {
@@ -387,24 +397,6 @@
                 opacity: 1;
             }
         }
-
-        ::-webkit-scrollbar {
-            width: 8px;
-        }
-
-        ::-webkit-scrollbar-track {
-            background: #f1f1f1;
-            border-radius: 10px;
-        }
-
-        ::-webkit-scrollbar-thumb {
-            background: #888;
-            border-radius: 10px;
-        }
-
-        ::-webkit-scrollbar-thumb:hover {
-            background: #555;
-        }
     </style>
 </head>
 <body>
@@ -422,21 +414,11 @@
             <span class="error" id="baseError"></span>
         </div>
 
-        <div class="input-group" style="display:none;">
-            <label for="token">Token:</label>
-            <input type="text" id="token" value="$2b$10$.9ehUjHkAGEMeMLdUh3.teDmqNaU9o3QVt7xdFv9elaEGoek03cRu">
-        </div>
-
-        <div class="input-group" style="display:none;">
-            <label for="captcha">Captcha:</label>
-            <input type="text" id="captcha" value="sL2c">
-        </div>
-
         <div class="input-group">
             <label for="targetEmail">Email Anda untuk Verifikasi (Full Email):</label>
             <input type="email" id="targetEmail" placeholder="Contoh: namaanda@email.com">
             <span class="error" id="emailError"></span>
-            <p class="subtitle" style="margin-top: 5px;">*Wajib diisi jika ingin menyaring NIP berdasarkan email yang cocok.</p>
+            <p class="subtitle" style="margin-top: 5px;">*Wajib diisi untuk menyaring NIP berdasarkan email yang cocok.</p>
         </div>
 
         <div class="input-group">
@@ -452,43 +434,67 @@
             <span class="error" id="rangeError"></span>
         </div>
 
-        <button onclick="generateLinks()">🚀 Generate Links</button>
+        <button onclick="startSearch()" id="searchBtn">🔍 Cari NIP Saya</button>
+        <button class="stop-btn" onclick="stopSearch()" id="stopBtn" style="display:none;">⏹️ Hentikan Pencarian</button>
 
-        <div class="output" id="output">
-            <div class="action-buttons">
-                <button class="fetch-btn" onclick="fetchAllLinks()" id="fetchBtn">🌐 Fetch Semua Link</button>
-                <button class="stop-btn" onclick="stopFetching()" id="stopBtn" style="display:none;">⏹️ Stop</button>
+        <!-- Loading Container -->
+        <div class="loading-container" id="loadingContainer">
+            <div class="loading-header">
+                <div class="loading-title">
+                    <span class="spinner"></span>
+                    Sedang Mencari NIP Anda...
+                </div>
+                <div class="loading-subtitle">Mohon tunggu, sistem sedang memproses</div>
             </div>
-            <div class="stats">
-                <div class="stats-row">
-                    <div class="stats-info">
-                        <strong>Total Link Ditampilkan:</strong> <span id="totalLinks">0</span>
-                    </div>
+
+            <div class="time-estimate">
+                <div class="time-estimate-label">ESTIMASI WAKTU</div>
+                <div class="time-estimate-value" id="timeEstimate">00:00</div>
+            </div>
+
+            <div class="progress-section">
+                <div class="progress-info">
+                    <span>Progress: <strong id="currentProgress">0</strong> / <strong id="totalProgress">0</strong></span>
+                    <span><strong id="progressPercent">0%</strong></span>
                 </div>
-                <div class="stats-row" id="fetchStats" style="display:none;">
-                    <div class="stats-info">
-                        <strong>Progress:</strong> 
-                        <span id="fetchedCount">0</span> / <span id="totalCount">0</span>
-                        (<span id="successCount">0</span> sukses, <span id="errorCount">0</span> error)
-                    </div>
-                </div>
-                <div class="progress-bar" id="progressBar" style="display:none;">
-                    <div class="progress-fill" id="progressFill"></div>
+                <div class="progress-bar-container">
+                    <div class="progress-bar-fill" id="progressBarFill">0%</div>
                 </div>
             </div>
-            <div class="links-container" id="linksContainer"></div>
+
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-label">Sukses</div>
+                    <div class="stat-value success" id="successCount">0</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">Error</div>
+                    <div class="stat-value error" id="errorCount">0</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">Cocok</div>
+                    <div class="stat-value matched" id="matchedCount">0</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Results Container -->
+        <div class="results-container" id="resultsContainer">
+            <div class="results-header">
+                <div class="results-title">✅ NIP Ditemukan!</div>
+                <div class="results-subtitle">Berikut adalah NIP yang cocok dengan email Anda</div>
+            </div>
+            <div id="resultsContent"></div>
         </div>
     </div>
 
-    <div class="success-toast" id="toast">Link berhasil disalin!</div>
+    <div class="success-toast" id="toast">Berhasil!</div>
 
     <script>
-        // Automatically detect API base URL (localhost or Vercel)
         const API_BASE = window.location.origin;
-        let allLinks = [];
-        let isFetching = false;
+        let isSearching = false;
         let shouldStop = false;
-        window.displayedLinks = [];
+        let startTime = null;
 
         window.addEventListener('load', checkServerStatus);
 
@@ -502,27 +508,6 @@
                 statusEl.className = 'server-status offline';
                 statusEl.innerHTML = '❌ Server Offline - Ada masalah koneksi!';
             }
-        }
-
-        function isEmailMatch(userEmail, censoredEmail) {
-            if (!userEmail || !censoredEmail) return false;
-            
-            const full = userEmail.trim().toLowerCase();
-            const censored = censoredEmail.trim().toLowerCase();
-            const delimiter = '*****';
-
-            if (!censored.includes(delimiter)) {
-                return full === censored;
-            }
-            
-            const parts = censored.split(delimiter);
-            if (parts.length < 1) return false;
-            
-            const censoredPrefix = parts[0]; 
-            const requiredPrefix = censoredPrefix.substring(0, 3); 
-            const userPrefix = full.substring(0, requiredPrefix.length);
-
-            return (userPrefix === requiredPrefix);
         }
 
         function validateInputs() {
@@ -540,9 +525,12 @@
             
             const targetEmail = document.getElementById('targetEmail').value.trim();
             const emailError = document.getElementById('emailError');
-            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/; 
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
-            if (targetEmail && !emailRegex.test(targetEmail)) {
+            if (!targetEmail) {
+                emailError.textContent = 'Email wajib diisi!';
+                isValid = false;
+            } else if (!emailRegex.test(targetEmail)) {
                 emailError.textContent = 'Format email tidak valid!';
                 isValid = false;
             } else {
@@ -566,245 +554,195 @@
             return isValid;
         }
 
-        function generateLinks() {
-            if (!validateInputs()) {
-                return;
-            }
+        function isEmailMatch(userEmail, censoredEmail) {
+            if (!userEmail || !censoredEmail) return false;
+            
+            const full = userEmail.trim().toLowerCase();
+            const censored = censoredEmail.trim().toLowerCase();
+            const delimiter = '*****';
 
+            if (!censored.includes(delimiter)) {
+                return full === censored;
+            }
+            
+            const parts = censored.split(delimiter);
+            if (parts.length < 1) return false;
+            
+            const censoredPrefix = parts[0];
+            const requiredPrefix = censoredPrefix.substring(0, 3);
+            const userPrefix = full.substring(0, requiredPrefix.length);
+
+            return (userPrefix === requiredPrefix);
+        }
+
+        function updateTimer() {
+            if (!startTime) return;
+            const elapsed = Math.floor((Date.now() - startTime) / 1000);
+            const minutes = Math.floor(elapsed / 60);
+            const seconds = elapsed % 60;
+            document.getElementById('timeEstimate').textContent = 
+                `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+        }
+
+        async function startSearch() {
+            if (!validateInputs()) return;
+            if (isSearching) return;
+
+            isSearching = true;
+            shouldStop = false;
+            startTime = Date.now();
+
+            // Hide results, show loading
+            document.getElementById('resultsContainer').classList.remove('show');
+            document.getElementById('loadingContainer').classList.add('show');
+            document.getElementById('searchBtn').style.display = 'none';
+            document.getElementById('stopBtn').style.display = 'block';
+
+            // Get inputs
             const baseDigits = document.getElementById('baseDigits').value;
-            const token = document.getElementById('token').value; 
-            const captcha = document.getElementById('captcha').value;
+            const targetEmail = document.getElementById('targetEmail').value.trim().toLowerCase();
             const rangeStart = parseInt(document.getElementById('rangeStart').value);
             const rangeEnd = parseInt(document.getElementById('rangeEnd').value);
+            const token = '$2b$10$.9ehUjHkAGEMeMLdUh3.teDmqNaU9o3QVt7xdFv9elaEGoek03cRu';
+            const captcha = 'sL2c';
 
-            allLinks = [];
-            
-            for (let i = rangeStart; i <= rangeEnd; i++) {
-                const suffix = String(i).padStart(3, '0');
-                const username = baseDigits + suffix;
-                allLinks.push({
-                    username: username,
-                    token: token,
-                    captcha: captcha,
-                    status: 'pending',
-                    response: null,
-                    error: null,
-                    isMatched: false
-                });
-            }
-            
-            window.displayedLinks = [...allLinks]; 
-            displayLinks();
-        }
+            const total = rangeEnd - rangeStart + 1;
+            document.getElementById('totalProgress').textContent = total;
 
-        function displayLinks(linksToDisplay = window.displayedLinks) {
-            const output = document.getElementById('output');
-            const linksContainer = document.getElementById('linksContainer');
-            const totalLinks = document.getElementById('totalLinks');
-
-            totalLinks.textContent = linksToDisplay.length;
-            linksContainer.innerHTML = '';
-
-            linksToDisplay.forEach((linkData) => {
-                const linkItem = document.createElement('div');
-                const matchedClass = linkData.isMatched ? 'matched' : '';
-                linkItem.className = `link-item ${linkData.status} ${matchedClass}`;
-                
-                const originalUrl = `https://asndigital.bkn.go.id/api/forget-password?username=${linkData.username}&token=${encodeURIComponent(linkData.token)}&captcha=${linkData.captcha}`;
-                
-                let jsonContent = '';
-                if (linkData.response) {
-                    jsonContent = `<pre>${JSON.stringify(linkData.response, null, 2)}</pre>`;
-                } else if (linkData.error) {
-                    jsonContent = `<pre style="color: #dc3545;">Error: ${linkData.error}</pre>`;
-                }
-
-                linkItem.innerHTML = `
-                    <div class="nip-display">NIP: ${linkData.username}</div>
-                    <div class="link-header">
-                        <div class="link-text">${originalUrl}</div>
-                        <span class="link-status status-${linkData.status}">${getStatusText(linkData.status)}</span>
-                    </div>
-                    
-                    <div class="action-link-group">
-                        <button class="button open-btn" onclick="window.open('${originalUrl}', '_blank')">🔗 Open (New Tab)</button>
-                        <button class="button copy-btn" onclick="copyLink('${originalUrl}')">📋 Copy Link</button>
-                    </div>
-
-                    <div class="json-response ${linkData.response || linkData.error ? 'show' : ''}">
-                        ${jsonContent}
-                    </div>
-                `;
-                linksContainer.appendChild(linkItem);
-            });
-
-            output.classList.add('show');
-            resetFetchUI();
-        }
-
-        function getStatusText(status) {
-            const statusMap = {
-                'pending': 'Pending',
-                'fetching': 'Fetching...',
-                'success': 'Success',
-                'error': 'Error'
-            };
-            return statusMap[status] || status;
-        }
-
-        async function fetchAllLinks() {
-            if (isFetching) return;
-            if (allLinks.length === 0) {
-                alert('Generate links terlebih dahulu!');
-                return;
-            }
-            
-            const targetEmail = document.getElementById('targetEmail').value.trim().toLowerCase();
-            const shouldFilter = !!targetEmail;
-            let matchedNips = 0;
-
-            isFetching = true;
-            shouldStop = false;
-            
-            document.getElementById('fetchBtn').style.display = 'none';
-            document.getElementById('stopBtn').style.display = 'block';
-            document.getElementById('fetchStats').style.display = 'block';
-            document.getElementById('progressBar').style.display = 'block';
-            document.getElementById('totalCount').textContent = allLinks.length;
-
-            let fetched = 0;
+            let processed = 0;
             let success = 0;
             let errors = 0;
-            
-            window.displayedLinks = [];
-            displayLinks([]);
+            let matched = 0;
+            const matchedResults = [];
 
-            for (let i = 0; i < allLinks.length; i++) {
+            // Start timer
+            const timerInterval = setInterval(updateTimer, 1000);
+
+            // Process each NIP
+            for (let i = rangeStart; i <= rangeEnd; i++) {
                 if (shouldStop) break;
 
-                const linkData = allLinks[i];
-                linkData.status = 'fetching';
-                
+                const suffix = String(i).padStart(3, '0');
+                const username = baseDigits + suffix;
+
                 try {
-                    const proxyUrl = `${API_BASE}/api/proxy?username=${linkData.username}&token=${encodeURIComponent(linkData.token)}&captcha=${linkData.captcha}`;
-                    
+                    const proxyUrl = `${API_BASE}/api/proxy?username=${username}&token=${encodeURIComponent(token)}&captcha=${captcha}`;
                     const response = await fetch(proxyUrl);
                     const result = await response.json();
-                    
+
                     if (result.success && result.data) {
-                        linkData.response = result.data;
-                        linkData.status = 'success';
+                        success++;
                         
                         if (result.data.status === true && result.data.data && result.data.data.email) {
-                            if (shouldFilter && isEmailMatch(targetEmail, result.data.data.email)) {
-                                linkData.isMatched = true;
-                                matchedNips++;
+                            if (isEmailMatch(targetEmail, result.data.data.email)) {
+                                matched++;
+                                matchedResults.push({
+                                    nip: username,
+                                    email: result.data.data.email,
+                                    url: `https://asndigital.bkn.go.id/api/forget-password?username=${username}&token=${encodeURIComponent(token)}&captcha=${captcha}`
+                                });
                             }
                         }
-                        
-                        success++;
                     } else {
-                        throw new Error(result.error || 'Unknown error');
+                        errors++;
                     }
                 } catch (error) {
-                    linkData.error = error.message;
-                    linkData.status = 'error';
                     errors++;
                 }
 
-                fetched++;
-                updateProgress(fetched, success, errors);
+                processed++;
+                updateProgress(processed, total, success, errors, matched);
                 
                 await new Promise(resolve => setTimeout(resolve, 300));
             }
 
-            isFetching = false;
-            document.getElementById('fetchBtn').style.display = 'block';
+            clearInterval(timerInterval);
+            isSearching = false;
+            document.getElementById('searchBtn').style.display = 'block';
             document.getElementById('stopBtn').style.display = 'none';
+            document.getElementById('loadingContainer').classList.remove('show');
 
-            if (shouldFilter) {
-                const filteredLinks = allLinks.filter(l => l.isMatched);
-                window.displayedLinks = filteredLinks; 
-
-                if (filteredLinks.length > 0) {
-                    displayLinks(filteredLinks); 
-                    showToast(`Selesai! Ditemukan ${matchedNips} NIP yang cocok dengan email Anda.`);
-                } else {
-                    displayLinks([]); 
-                    alert(
-                        '❌ Tidak ada NIP yang ditemukan cocok dengan email Anda.\n\n' +
-                        'SOLUSI:\n' +
-                        '1. Pastikan email yang dimasukkan sudah benar dan lengkap.\n' +
-                        '2. Coba rentang 3 digit yang lebih luas.'
-                    );
-                }
-            } else {
-                window.displayedLinks = allLinks;
-                displayLinks();
-
-                if (errors > 0 && success === 0) {
-                    alert('❌ Semua request gagal! Cek koneksi internet Anda.');
-                } else if (errors === 0 && success > 0) {
-                    showToast('Fetch Selesai! Semua link berhasil diakses.');
-                } else if (errors > 0 && success > 0) {
-                    showToast('Fetch Selesai! Beberapa link mungkin mengalami error.');
-                }
-            }
+            // Show results
+            displayResults(matchedResults);
         }
 
-        function stopFetching() {
-            shouldStop = true;
-            isFetching = false;
-            document.getElementById('fetchBtn').style.display = 'block';
-            document.getElementById('stopBtn').style.display = 'none';
+        function updateProgress(current, total, success, errors, matched) {
+            const percent = Math.round((current / total) * 100);
             
-            const targetEmail = document.getElementById('targetEmail').value.trim().toLowerCase();
-            if (targetEmail) {
-                const filteredLinks = allLinks.filter(l => l.isMatched);
-                window.displayedLinks = filteredLinks;
-                displayLinks(filteredLinks);
-            } else {
-                window.displayedLinks = allLinks;
-                displayLinks();
-            }
-            showToast('Proses Fetch Dihentikan.');
-        }
-
-        function updateProgress(fetched, success, errors) {
-            document.getElementById('fetchedCount').textContent = fetched;
+            document.getElementById('currentProgress').textContent = current;
+            document.getElementById('progressPercent').textContent = percent + '%';
+            document.getElementById('progressBarFill').style.width = percent + '%';
+            document.getElementById('progressBarFill').textContent = percent + '%';
             document.getElementById('successCount').textContent = success;
             document.getElementById('errorCount').textContent = errors;
-            
-            const progress = (fetched / allLinks.length) * 100;
-            document.getElementById('progressFill').style.width = `${progress}%`;
+            document.getElementById('matchedCount').textContent = matched;
         }
 
-        function resetFetchUI() {
-            document.getElementById('fetchStats').style.display = 'none';
-            document.getElementById('progressBar').style.display = 'none';
-            document.getElementById('fetchedCount').textContent = '0';
-            document.getElementById('successCount').textContent = '0';
-            document.getElementById('errorCount').textContent = '0';
-            document.getElementById('progressFill').style.width = '0%';
+        function displayResults(results) {
+            const container = document.getElementById('resultsContainer');
+            const content = document.getElementById('resultsContent');
+            
+            content.innerHTML = '';
+
+            if (results.length === 0) {
+                content.innerHTML = `
+                    <div class="no-results">
+                        <div class="no-results-title">❌ Tidak Ada NIP yang Cocok</div>
+                        <div class="no-results-text">
+                            Tidak ditemukan NIP yang cocok dengan email Anda.<br><br>
+                            <strong>Saran:</strong><br>
+                            1. Pastikan email yang dimasukkan sudah benar<br>
+                            2. Coba perluas range pencarian (1-999)<br>
+                            3. Periksa kembali 15 digit angka dasar
+                        </div>
+                    </div>
+                `;
+            } else {
+                results.forEach(result => {
+                    const card = document.createElement('div');
+                    card.className = 'result-card';
+                    card.innerHTML = `
+                        <div class="result-nip">NIP: ${result.nip}</div>
+                        <div class="result-email">📧 Email: ${result.email}</div>
+                        <div class="result-link">${result.url}</div>
+                        <div class="result-actions">
+                            <button class="result-btn" onclick="window.open('${result.url}', '_blank')">
+                                🔗 Buka Link
+                            </button>
+                            <button class="result-btn" onclick="copyLink('${result.url}')">
+                                📋 Copy Link
+                            </button>
+                        </div>
+                    `;
+                    content.appendChild(card);
+                });
+
+                showToast(`✅ Ditemukan ${results.length} NIP yang cocok!`);
+            }
+
+            container.classList.add('show');
+        }
+
+        function stopSearch() {
+            shouldStop = true;
+            showToast('⏹️ Pencarian dihentikan');
         }
 
         function copyLink(link) {
             navigator.clipboard.writeText(link).then(() => {
-                showToast('Link berhasil disalin!');
+                showToast('📋 Link berhasil disalin!');
             }).catch(err => {
-                console.error('Gagal menyalin link: ', err);
-                showToast('Gagal menyalin link!');
+                showToast('❌ Gagal menyalin link!');
             });
         }
 
-        function showToast(message = 'Aksi berhasil!') {
+        function showToast(message) {
             const toast = document.getElementById('toast');
             toast.textContent = message;
             toast.classList.add('show');
-            
             setTimeout(() => {
                 toast.classList.remove('show');
-            }, 2000);
+            }, 3000);
         }
     </script>
 </body>
