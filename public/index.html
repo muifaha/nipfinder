@@ -365,7 +365,7 @@
 
         .error {
             color: #dc3545;
-            font-size: 24px;
+            font-size: 14px;
             margin-top: 5px;
         }
 
@@ -402,28 +402,59 @@
 <body>
     <div class="container">
         <h1>🔗 NI PPPK FINDER</h1>
-        <p class="subtitle">Created by Muif Aha - Vercel Deployment</p>
-        <p class="subtitle">Tools untuk mencari NIP PPPK sebelum penerimaan SK, user bisa mencari nomor NIP secara otomatis berdasarkan email pendaftaran di SSCASN, NIP yang sudah didapatkan bisa digunakan untuk mereset password dan login ke ASNDIGITAL/MyASN untuk melihat lokasi penempatan</p>
+        <p class="subtitle">Created by Muif Aha</p>
 
         <div class="server-status" id="serverStatus">
             🔄 Memeriksa koneksi server...
         </div>
 
         <div class="input-group">
-            <label for="baseDigits">15 Digit Angka Dasar :</label>
-            <input type="text" id="baseDigits" placeholder="Contoh: 199312282025212" maxlength="15">
+            <label>Data untuk Generate NIP (18 Digit):</label>
+            
+            <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 10px;">
+                <div>
+                    <label style="font-size: 12px; color: #666;">Tanggal Lahir</label>
+                    <input type="text" id="birthDate" placeholder="DD/MM/YYYY" maxlength="10" style="padding: 8px;">
+                </div>
+                <div>
+                    <label style="font-size: 12px; color: #666;">Tahun Pengangkatan</label>
+                    <input type="number" id="yearAppointed" placeholder="2025" min="2000" max="2099" style="padding: 8px;">
+                </div>
+                <div>
+                    <label style="font-size: 12px; color: #666;">Jenis Kelamin</label>
+                    <select id="gender" style="padding: 8px; border: 2px solid #ddd; border-radius: 8px; font-size: 16px;">
+                        <option value="">Pilih</option>
+                        <option value="1">Laki-laki (1)</option>
+                        <option value="2">Perempuan (2)</option>
+                    </select>
+                </div>
+            </div>
+            
+            <div style="background: #f0f2ff; padding: 15px; border-radius: 8px; border-left: 4px solid #667eea;">
+                <div style="font-size: 12px; color: #666; margin-bottom: 5px;">Preview NIP 18 Digit:</div>
+                <div id="generatedNIP" style="font-size: 22px; font-weight: 700; color: #667eea; font-family: 'Courier New', monospace; letter-spacing: 1px;">
+                    -
+                </div>
+                <div id="nipBreakdown" style="font-size: 11px; color: #888; margin-top: 10px; line-height: 1.8; border-top: 1px solid #ddd; padding-top: 8px;">
+                    <div style="margin-bottom: 5px;"><strong>Format NIP 18 Digit:</strong></div>
+                    <div>YYYYMMDD (Tgl Lahir) + YYYY (Tahun Angkat) + 21 (Kode Peridode Pengangkatan PPPK) + G (Jenis Kelamin) + <span style="color: #dc3545; font-weight: 700;">XXX</span></div>
+                    <div style="margin-top: 8px; color: #dc3545; font-weight: 600;">
+                        ⚠️ XXX = 3 digit terakhir (001-999) yang akan dicari secara otomatis
+                    </div>
+                </div>
+            </div>
             <span class="error" id="baseError"></span>
         </div>
 
         <div class="input-group">
-            <label for="targetEmail">Masukan Email yang sama dengan email di SSCASN BKN (Pendaftaran PPPK):</label>
+            <label for="targetEmail">Email Anda, Email harus sama dengan yang terdaftar di SSCASN (Pendaftaran PPPK):</label>
             <input type="email" id="targetEmail" placeholder="Contoh: namaanda@email.com">
             <span class="error" id="emailError"></span>
             <p class="subtitle" style="margin-top: 5px;">*Wajib diisi untuk menyaring NIP berdasarkan email yang cocok.</p>
         </div>
 
         <div class="input-group">
-            <label>Range 3 Digit (001-999):</label>
+            <label>Range 3 Digit Terakhir (001-999):</label>
             <div class="range-group">
                 <div>
                     <input type="number" id="rangeStart" placeholder="Dari (1)" min="1" max="999" value="1">
@@ -433,6 +464,7 @@
                 </div>
             </div>
             <span class="error" id="rangeError"></span>
+            <p class="subtitle" style="margin-top: 5px;">*Sistem akan mencari 3 digit acak di akhir NIP sesuai range ini.</p>
         </div>
 
         <button onclick="startSearch()" id="searchBtn">🔍 Cari NIP Saya</button>
@@ -499,6 +531,154 @@
 
         window.addEventListener('load', checkServerStatus);
 
+        // Auto-format date input
+        document.addEventListener('DOMContentLoaded', function() {
+            const birthDateInput = document.getElementById('birthDate');
+            const yearInput = document.getElementById('yearAppointed');
+            const genderInput = document.getElementById('gender');
+
+            if (birthDateInput) {
+                birthDateInput.addEventListener('input', function(e) {
+                    let value = e.target.value.replace(/\D/g, '');
+                    
+                    if (value.length >= 2) {
+                        value = value.slice(0, 2) + '/' + value.slice(2);
+                    }
+                    if (value.length >= 5) {
+                        value = value.slice(0, 5) + '/' + value.slice(5, 9);
+                    }
+                    
+                    e.target.value = value;
+                    generateNIPPreview();
+                });
+
+                birthDateInput.addEventListener('blur', validateDate);
+            }
+
+            if (yearInput && genderInput) {
+                yearInput.addEventListener('input', generateNIPPreview);
+                genderInput.addEventListener('change', generateNIPPreview);
+            }
+        });
+
+        function validateDate() {
+            const input = document.getElementById('birthDate').value;
+            const baseError = document.getElementById('baseError');
+            
+            if (!input) return;
+            
+            const parts = input.split('/');
+            if (parts.length !== 3) {
+                baseError.textContent = 'Format tanggal harus DD/MM/YYYY';
+                return false;
+            }
+            
+            const day = parseInt(parts[0]);
+            const month = parseInt(parts[1]);
+            const year = parseInt(parts[2]);
+            
+            if (day < 1 || day > 31) {
+                baseError.textContent = 'Hari harus antara 01-31';
+                return false;
+            }
+            if (month < 1 || month > 12) {
+                baseError.textContent = 'Bulan harus antara 01-12';
+                return false;
+            }
+            if (year < 1900 || year > 2024) {
+                baseError.textContent = 'Tahun harus antara 1900-2024';
+                return false;
+            }
+            
+            baseError.textContent = '';
+            return true;
+        }
+
+        function generateNIPPreview() {
+            const birthDateStr = document.getElementById('birthDate').value;
+            const yearAppointed = document.getElementById('yearAppointed').value;
+            const gender = document.getElementById('gender').value;
+            const generatedNIPEl = document.getElementById('generatedNIP');
+            const nipBreakdownEl = document.getElementById('nipBreakdown');
+
+            if (!birthDateStr || !yearAppointed || !gender) {
+                generatedNIPEl.textContent = '-';
+                nipBreakdownEl.innerHTML = `
+                    <div style="margin-bottom: 5px;"><strong>Format NIP 18 Digit:</strong></div>
+                    <div>YYYYMMDD (Tgl Lahir) + YYYY (Tahun Angkat) + 21 (PPPK) + G (Jenis Kelamin) + <span style="color: #dc3545; font-weight: 700;">XXX</span></div>
+                    <div style="margin-top: 8px; color: #dc3545; font-weight: 600;">
+                        ⚠️ XXX = 3 digit terakhir (001-999) yang akan dicari secara otomatis
+                    </div>
+                `;
+                return;
+            }
+
+            // Parse DD/MM/YYYY to YYYYMMDD
+            const parts = birthDateStr.split('/');
+            if (parts.length !== 3) return;
+            
+            const day = parts[0].padStart(2, '0');
+            const month = parts[1].padStart(2, '0');
+            const year = parts[2];
+
+            // Generate NIP with XXX
+            const birthPart = `${year}${month}${day}`;
+            const yearPart = yearAppointed;
+            const nip = `${birthPart}${yearPart}21${gender}XXX`;
+
+            // Display
+            generatedNIPEl.textContent = nip;
+            
+            // Breakdown with colors
+            const genderText = gender === '1' ? 'Laki-laki' : 'Perempuan';
+            const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Oct', 'Nov', 'Des'];
+            const monthName = monthNames[parseInt(month) - 1];
+            
+            nipBreakdownEl.innerHTML = `
+                <div style="margin-bottom: 8px;"><strong>Penjelasan NIP Anda:</strong></div>
+                <div style="background: white; padding: 10px; border-radius: 6px; margin-bottom: 8px;">
+                    <span style="color: #28a745; font-weight: 700;">${birthPart}</span> 
+                    <span style="color: #666;">→ Lahir: ${day} ${monthName} ${year}</span>
+                </div>
+                <div style="background: white; padding: 10px; border-radius: 6px; margin-bottom: 8px;">
+                    <span style="color: #007bff; font-weight: 700;">${yearPart}</span> 
+                    <span style="color: #666;">→ Diangkat Tahun: ${yearPart}</span>
+                </div>
+                <div style="background: white; padding: 10px; border-radius: 6px; margin-bottom: 8px;">
+                    <span style="color: #ffc107; font-weight: 700;">21</span> 
+                    <span style="color: #666;">→ Status: PPPK</span>
+                </div>
+                <div style="background: white; padding: 10px; border-radius: 6px; margin-bottom: 8px;">
+                    <span style="color: #dc3545; font-weight: 700;">${gender}</span> 
+                    <span style="color: #666;">→ Jenis Kelamin: ${genderText}</span>
+                </div>
+                <div style="background: #fff5f5; padding: 10px; border-radius: 6px; border: 2px dashed #dc3545;">
+                    <span style="color: #dc3545; font-weight: 700;">XXX</span> 
+                    <span style="color: #dc3545; font-weight: 600;">→ 3 digit terakhir yang akan dicari (001-999)</span>
+                </div>
+            `;
+        }
+
+        function getBaseDigits() {
+            const birthDateStr = document.getElementById('birthDate').value;
+            const yearAppointed = document.getElementById('yearAppointed').value;
+            const gender = document.getElementById('gender').value;
+
+            if (!birthDateStr || !yearAppointed || !gender) {
+                return null;
+            }
+
+            // Parse DD/MM/YYYY to YYYYMMDD
+            const parts = birthDateStr.split('/');
+            if (parts.length !== 3) return null;
+            
+            const day = parts[0].padStart(2, '0');
+            const month = parts[1].padStart(2, '0');
+            const year = parts[2];
+
+            return `${year}${month}${day}${yearAppointed}21${gender}`;
+        }
+
         async function checkServerStatus() {
             const statusEl = document.getElementById('serverStatus');
             try {
@@ -514,14 +694,43 @@
         function validateInputs() {
             let isValid = true;
             
-            const baseDigits = document.getElementById('baseDigits').value;
+            const birthDateStr = document.getElementById('birthDate').value;
+            const yearAppointed = document.getElementById('yearAppointed').value;
+            const gender = document.getElementById('gender').value;
             const baseError = document.getElementById('baseError');
             
-            if (baseDigits.length !== 15 || !/^\d+$/.test(baseDigits)) {
-                baseError.textContent = 'Harus 15 digit angka!';
+            if (!birthDateStr) {
+                baseError.textContent = 'Tanggal lahir wajib diisi! (Format: DD/MM/YYYY)';
                 isValid = false;
             } else {
-                baseError.textContent = '';
+                const parts = birthDateStr.split('/');
+                if (parts.length !== 3) {
+                    baseError.textContent = 'Format tanggal harus DD/MM/YYYY';
+                    isValid = false;
+                } else {
+                    const day = parseInt(parts[0]);
+                    const month = parseInt(parts[1]);
+                    const year = parseInt(parts[2]);
+                    
+                    if (day < 1 || day > 31 || month < 1 || month > 12 || year < 1900 || year > 2024) {
+                        baseError.textContent = 'Tanggal lahir tidak valid!';
+                        isValid = false;
+                    } else if (!yearAppointed) {
+                        baseError.textContent = 'Tahun pengangkatan wajib diisi!';
+                        isValid = false;
+                    } else if (!gender) {
+                        baseError.textContent = 'Jenis kelamin wajib dipilih!';
+                        isValid = false;
+                    } else {
+                        const yearApp = parseInt(yearAppointed);
+                        if (yearApp < 2000 || yearApp > 2099) {
+                            baseError.textContent = 'Tahun pengangkatan harus antara 2000-2099!';
+                            isValid = false;
+                        } else {
+                            baseError.textContent = '';
+                        }
+                    }
+                }
             }
             
             const targetEmail = document.getElementById('targetEmail').value.trim();
@@ -600,7 +809,15 @@
             document.getElementById('stopBtn').style.display = 'block';
 
             // Get inputs
-            const baseDigits = document.getElementById('baseDigits').value;
+            const baseDigits = getBaseDigits();
+            if (!baseDigits) {
+                alert('Gagal generate NIP. Pastikan semua data sudah diisi!');
+                isSearching = false;
+                document.getElementById('searchBtn').style.display = 'block';
+                document.getElementById('stopBtn').style.display = 'none';
+                document.getElementById('loadingContainer').classList.remove('show');
+                return;
+            }
             const targetEmail = document.getElementById('targetEmail').value.trim().toLowerCase();
             const rangeStart = parseInt(document.getElementById('rangeStart').value);
             const rangeEnd = parseInt(document.getElementById('rangeEnd').value);
