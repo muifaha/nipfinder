@@ -380,7 +380,7 @@
 
         .error {
             color: #dc3545;
-            font-size: 14px;
+            font-size: 24px;
             margin-top: 5px;
         }
 
@@ -412,13 +412,211 @@
                 opacity: 1;
             }
         }
+
+        /* Modal Styles */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.6);
+            z-index: 9998;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .modal-overlay.show {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            max-width: 550px;
+            width: 90%;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            animation: slideUp 0.3s ease;
+            position: relative;
+            z-index: 9999;
+        }
+
+        @keyframes slideUp {
+            from {
+                transform: translateY(50px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        .modal-header {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .modal-icon {
+            font-size: 64px;
+            margin-bottom: 10px;
+        }
+
+        .modal-title {
+            font-size: 24px;
+            font-weight: 700;
+            color: #333;
+            margin-bottom: 10px;
+        }
+
+        .modal-subtitle {
+            font-size: 14px;
+            color: #666;
+        }
+
+        .modal-body {
+            margin-bottom: 25px;
+        }
+
+        .status-check {
+            background: #f0f2ff;
+            border-left: 4px solid #667eea;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+        }
+
+        .status-check-title {
+            font-size: 16px;
+            font-weight: 700;
+            color: #667eea;
+            margin-bottom: 10px;
+        }
+
+        .status-item {
+            display: flex;
+            align-items: flex-start;
+            margin-bottom: 10px;
+            font-size: 14px;
+            line-height: 1.6;
+        }
+
+        .status-item:last-child {
+            margin-bottom: 0;
+        }
+
+        .status-icon {
+            margin-right: 10px;
+            font-size: 18px;
+            flex-shrink: 0;
+        }
+
+        .warning-box {
+            background: #fff3cd;
+            border-left: 4px solid #ffc107;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+        }
+
+        .warning-title {
+            font-size: 14px;
+            font-weight: 700;
+            color: #856404;
+            margin-bottom: 8px;
+        }
+
+        .warning-text {
+            font-size: 13px;
+            color: #856404;
+            line-height: 1.6;
+        }
+
+        .error-box {
+            background: #f8d7da;
+            border-left: 4px solid #dc3545;
+            padding: 15px;
+            border-radius: 8px;
+        }
+
+        .error-title {
+            font-size: 14px;
+            font-weight: 700;
+            color: #721c24;
+            margin-bottom: 8px;
+        }
+
+        .error-text {
+            font-size: 13px;
+            color: #721c24;
+            line-height: 1.6;
+        }
+
+        .modal-footer {
+            display: flex;
+            gap: 10px;
+        }
+
+        .modal-btn {
+            flex: 1;
+            padding: 15px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .modal-btn-yes {
+            background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+            color: white;
+        }
+
+        .modal-btn-yes:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(40, 167, 69, 0.4);
+        }
+
+        .modal-btn-no {
+            background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);
+            color: white;
+        }
+
+        .modal-btn-no:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(220, 53, 69, 0.4);
+        }
+
+        .modal-link {
+            text-align: center;
+            margin-top: 15px;
+            font-size: 13px;
+        }
+
+        .modal-link a {
+            color: #667eea;
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        .modal-link a:hover {
+            text-decoration: underline;
+        }
     </style>
 </head>
 <body>
     <div class="container">
         <h1>🔗 NIP PPPK FINDER</h1>
         <p class="subtitle">Created by Muif Aha - Pencari NIP PPPK Otomatis</p>
-        <p class="subtitle">Tools untuk mencari NIP PPPK sebelum penerimaan SK, user bisa mencari nomor NIP secara otomatis berdasarkan email pendaftaran di SSCASN, NIP yang sudah didapatkan bisa digunakan untuk mereset password dan login ke ASNDIGITAL/MyASN untuk melihat lokasi penempatan</p>
 
         <div class="server-status" id="serverStatus">
             🔄 Memeriksa koneksi server...
@@ -453,7 +651,7 @@
                 </div>
                 <div id="nipBreakdown" style="font-size: 11px; color: #888; margin-top: 10px; line-height: 1.8; border-top: 1px solid #ddd; padding-top: 8px;">
                     <div style="margin-bottom: 5px;"><strong>Format NIP 18 Digit:</strong></div>
-                    <div>YYYYMMDD (Tgl Lahir) + YYYY (Tahun Angkat) + 21 (Frekuensi Pengangkatan PPPK) + G (Jenis Kelamin) + <span style="color: #dc3545; font-weight: 700;">XXX</span></div>
+                    <div>YYYYMMDD (Tgl Lahir) + YYYY (Tahun Angkat) + 21 (PPPK) + G (Jenis Kelamin) + <span style="color: #dc3545; font-weight: 700;">XXX</span></div>
                     <div style="margin-top: 8px; color: #dc3545; font-weight: 600;">
                         ⚠️ XXX = 3 digit terakhir (001-999) yang akan dicari secara otomatis
                     </div>
@@ -463,7 +661,7 @@
         </div>
 
         <div class="input-group">
-            <label for="targetEmail">Email Anda, pastikan sama dengan yang terdaftar di akun SSCASN BKN (Pendaftaran PPPK):</label>
+            <label for="targetEmail">Email Anda, Pastikan sesuai dengan akun SSCASN BKN:</label>
             <input type="email" id="targetEmail" placeholder="Contoh: namaanda@email.com">
             <span class="error" id="emailError"></span>
             <p class="subtitle" style="margin-top: 5px;">*Wajib diisi untuk menyaring NIP berdasarkan email yang cocok.</p>
@@ -519,7 +717,7 @@
             </div>
 
             <div class="time-estimate">
-                <div class="time-estimate-label">ESTIMASI WAKTU</div>
+                <div class="time-estimate-label">LAMA WAKTU</div>
                 <div class="time-estimate-value" id="timeEstimate">00:00</div>
             </div>
 
@@ -561,6 +759,50 @@
 
     <div class="success-toast" id="toast">Berhasil!</div>
 
+    <!-- Modal Konfirmasi Status -->
+    <div class="modal-overlay" id="modalOverlay">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div class="modal-icon">⚠️</div>
+                <div class="modal-title">Periksa Status MOLA BKN</div>
+                <div class="modal-subtitle">Pastikan status Anda sudah sesuai sebelum mencari NIP</div>
+            </div>
+            
+            <div class="modal-body">
+                <div class="status-check">
+                    <div class="status-check-title">✅ Status yang HARUS Sudah Tercapai:</div>
+                    <div class="status-item">
+                        <span class="status-icon">✔️</span>
+                        <span><strong>"Proses Pembuatan SK Berhasil"</strong> di MOLA BKN</span>
+                    </div>
+                </div>
+
+                <div class="error-box">
+                    <div class="error-title">❌ Jangan Lanjutkan Jika:</div>
+                    <div class="error-text">
+                        • Status belum "Proses Pembuatan SK Berhasil"<br>
+                        • Anda akan membuang waktu mencari NIP yang belum ada<br>
+                        <br>
+                        <strong>Cek dulu MOLA BKN Anda!</strong>
+                    </div>
+                </div>
+            </div>
+
+            <div class="modal-footer">
+                <button class="modal-btn modal-btn-no" onclick="closeModal()">
+                    ❌ Belum, Cek Dulu
+                </button>
+                <button class="modal-btn modal-btn-yes" onclick="confirmAndSearch()">
+                    ✅ Ya, Sudah Siap
+                </button>
+            </div>
+
+            <div class="modal-link">
+                <a href="https://monitoring-siasn.bkn.go.id/" target="_blank">🔗 Buka MOLA BKN</a>
+            </div>
+        </div>
+    </div>
+
     <!-- Vercel Analytics -->
     <script>
         window.va = window.va || function () { (window.vaq = window.vaq || []).push(arguments); };
@@ -599,7 +841,7 @@
                 generatedNIPEl.textContent = '-';
                 nipBreakdownEl.innerHTML = `
                     <div style="margin-bottom: 5px;"><strong>Format NIP 18 Digit:</strong></div>
-                    <div>YYYYMMDD (Tgl Lahir) + YYYY (Tahun Angkat) + 21 (Frekuensi PPPK) + G (Jenis Kelamin) + <span style="color: #dc3545; font-weight: 700;">XXX</span></div>
+                    <div>YYYYMMDD (Tgl Lahir) + YYYY (Tahun Angkat) + 21 (PPPK) + G (Jenis Kelamin) + <span style="color: #dc3545; font-weight: 700;">XXX</span></div>
                     <div style="margin-top: 8px; color: #dc3545; font-weight: 600;">
                         ⚠️ XXX = 3 digit terakhir (001-999) yang akan dicari secara otomatis
                     </div>
@@ -638,7 +880,7 @@
                 </div>
                 <div style="background: white; padding: 10px; border-radius: 6px; margin-bottom: 8px;">
                     <span style="color: #ffc107; font-weight: 700;">21</span> 
-                    <span style="color: #666;">→ Frekuensi Pengangkatan PPPK</span>
+                    <span style="color: #666;">→ Status: PPPK</span>
                 </div>
                 <div style="background: white; padding: 10px; border-radius: 6px; margin-bottom: 8px;">
                     <span style="color: #dc3545; font-weight: 700;">${gender}</span> 
@@ -773,6 +1015,27 @@
             if (!validateInputs()) return;
             if (isSearching) return;
 
+            // Show modal confirmation first
+            showModal();
+        }
+
+        function showModal() {
+            document.getElementById('modalOverlay').classList.add('show');
+            document.body.style.overflow = 'hidden'; // Prevent scrolling
+        }
+
+        function closeModal() {
+            document.getElementById('modalOverlay').classList.remove('show');
+            document.body.style.overflow = ''; // Restore scrolling
+            showToast('⏳ Silakan cek status MOLA BKN terlebih dahulu');
+        }
+
+        async function confirmAndSearch() {
+            // Close modal
+            document.getElementById('modalOverlay').classList.remove('show');
+            document.body.style.overflow = '';
+
+            // Start actual search
             isSearching = true;
             shouldStop = false;
             startTime = Date.now();
